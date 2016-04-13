@@ -205,9 +205,9 @@ class CompositionUnit extends React.Component {
     filesInput.value = '' // clear file list
   }
 
-  onSelectPublic(opt) {
+  onSelectPublic(value) {
     if (this.isReply()) { return } // cant change if a reply
-    this.setState({ isPublic: opt.value })
+    this.setState({ isPublic: value })
   }
 
   onChangeChannel(name) {
@@ -276,13 +276,14 @@ class CompositionUnit extends React.Component {
         { label: <span><i className="fa fa-bullhorn"/> Public</span>, 
           value: true }
       ]
+      var curOpt = !!props.isPublic ? 1 : 0
       if (!props.canChange) {
-        return (<a className="btn disabled">{opts[+props.isPublic].label}</a>)
+        return (<a className="btn disabled">{opts[curOpt].label}</a>)
       } else {
         return (<DropdownBtn className="btn" 
                              items={opts} 
                              onSelect={props.onSelect}>
-                   {opts[+props.isPublic].label} <i className="fa fa-caret-down" />
+                   {opts[curOpt].label} <i className="fa fa-caret-down" />
                 </DropdownBtn>)
       }
     }
