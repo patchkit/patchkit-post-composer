@@ -1,6 +1,6 @@
 {
   "name": "patchkit-post-composer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Composer component for public and private text posts",
   "main": "index.jsx",
   "scripts": {
