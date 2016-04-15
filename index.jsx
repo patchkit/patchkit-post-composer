@@ -158,7 +158,7 @@ class CompositionUnit extends React.Component {
 
       // read, hash, and store
       var reader = new FileReader()
-      reader.onload = function () {
+      reader.onload = () => {
         var buff64 = new Buffer(new Uint8Array(reader.result)).toString('base64')
         this.context.ssb.patchwork.addFileToBlobs(buff64, next)
       }
@@ -174,7 +174,7 @@ class CompositionUnit extends React.Component {
           var str = ''
           if (!(/(^|\s)$/.test(this.state.text)))
             str += ' ' // add some space if not on a newline
-          if (u.isImageFilename(f.name))
+          if (isImageFilename(f.name))
             str += '!' // inline the image
           str += '['+(f.name||'untitled')+']('+hash+')'
           this.setState({ text: this.state.text + str })
@@ -516,4 +516,14 @@ function getThreadRoot (msg) {
   var root = msg && msg.value && msg.value.content && msg.value.content.root
   if (root && mlib.link(root, 'msg')) { return mlib.link(root, 'msg').link }
   else return msg.key
+}
+
+function isImageFilename (name) {
+  if (typeof name !== 'string')
+    return false
+  return isImageContentType(mime.contentType(name))
+}
+
+function isImageContentType (ct) {
+  return (typeof ct == 'string' && ct.indexOf('image/') === 0)
 }
