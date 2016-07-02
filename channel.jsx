@@ -1,5 +1,6 @@
 import React from 'react'
 import suggestBox from 'suggest-box'
+import t from 'patchwork-translations'
 
 function getChannelSuggestions (channels) {
   return channels.map(ch => {
@@ -54,7 +55,7 @@ export default class ComposerChannel extends React.Component {
       return <div><i className="fa fa-hashtag" /> Channel: {this.props.value||<span style={{color:'#aaa'}}>none</span>}</div>
     }
     return <div className="flex flex-fill recps-inputs">
-      <span><i className="fa fa-hashtag" /> Channel:</span> <input className="flex-fill" ref="input" type="text" placeholder="Set the topic here (optional)" value={this.props.value} onChange={this.onChange.bind(this)} />
+      <span><i className="fa fa-hashtag" /> Channel:</span> <input className="flex-fill" ref="input" type="text" placeholder={t('composer.ChannelPlaceholder')} value={this.props.value} onChange={this.onChange.bind(this)} />
     </div>
   }
 }

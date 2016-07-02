@@ -2,6 +2,7 @@ import React from 'react'
 import suggestBox from 'suggest-box'
 import u from 'patchkit-util'
 import social from 'patchkit-util/social'
+import t from 'patchwork-translations'
 
 export const RECP_LIMIT = 7
 
@@ -74,11 +75,11 @@ export class ComposerRecps extends React.Component {
     return <div className="recps-inputs flex-fill">
       <i className="fa fa-user" /> To: {this.props.recps.map((r) => <ComposerRecp key={r} id={r} onRemove={this.props.onRemove} isReadOnly={this.props.isReadOnly} />)}
       { (!isAtLimit && !this.props.isReadOnly) ?
-        <input ref="input" type="text" placeholder="Add recipients here" value={this.state.inputText} onChange={this.onChange.bind(this)} {...this.props} /> :
+        <input ref="input" type="text" placeholder={t('composer.AddRecipients')} value={this.state.inputText} onChange={this.onChange.bind(this)} {...this.props} /> :
         '' }
-      { isAtLimit ? <div className="warning">Recipient limit reached</div> : '' }
+      { isAtLimit ? <div className="warning">{t('composer.RecipientLimitReached')}</div> : '' }
       { warnings.length
-        ? warnings.map((id, i) => <div key={'warning-'+i} className="warning">Warning: @{u.getName(this.context.users, id)} does not follow you, and may not receive your message.</div>)
+        ? warnings.map((id, i) => <div key={'warning-'+i} className="warning">{t('composer.NotFollowedWarning', {name: u.getName(this.context.users, id)})}</div>)
         : '' }
     </div>
   }

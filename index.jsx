@@ -14,6 +14,7 @@ import { getDraft, saveDraft, removeDraft } from './drafts'
 import ComposerChannel from './channel'
 import { RECP_LIMIT, ComposerRecps } from './recps'
 import mentionslib from './mentions'
+import t from 'patchwork-translations'
 
 const TEXTAREA_VERTICAL_FILL_ADJUST = -5 // remove 5 px to account for padding
 const MarkdownBlockVerticalFilled = verticalFilled(MarkdownBlock)
@@ -151,7 +152,11 @@ class CompositionUnit extends React.Component {
       // limit to 5mb
       if (f.size > 5 * (1024*1024)) {
         var inMB = Math.round(f.size / (1024*1024) * 100) / 100
-        this.context.events.emit('error', new Error(f.name + ' is larger than the 5 megabyte limit (' + inMB + ' MB)'))
+        this.context.events.emit('error', new Error(t('TooLarge', {
+          name: f.name,
+          limit: 5,
+          size: inMB
+        })))
         this.setState({ isAddingFiles: false })
         return false
       }
@@ -164,24 +169,25 @@ class CompositionUnit extends React.Component {
       }
       reader.onerror = function (e) {
         console.error(e)
-        next(new Error('Failed to upload '+f.name))
+        next(new Error(t('error.upload', {name: f.name})))
       }
       const next = (err, hash) => {
         if (err) {
-          this.context.events.emit('error', explain(err, 'Error Attaching File'))
+          this.context.events.emit('error', explain(err, t('error.attaching')))
         } else {
+          var name = f.name || t('composer.defaultFilename')
           // insert the mention
           var str = ''
           if (!(/(^|\s)$/.test(this.state.text)))
             str += ' ' // add some space if not on a newline
           if (isImageFilename(f.name))
             str += '!' // inline the image
-          str += '['+(f.name||'untitled')+']('+hash+')'
+          str += '['+name+']('+hash+')'
           this.setState({ text: this.state.text + str })
 
           // capture metadata
           var meta = this.state.addedFileMeta[hash] = {
-            name: f.name || 'untitled',
+            name: name,
             size: f.size
           }
           if (f.type)
@@ -261,7 +267,7 @@ class CompositionUnit extends React.Component {
       return <span/>
     return <div className="preview">
       <div className="muted">
-        <small>preview</small>
+        <small>{t('composer.preview')}</small>
         <a className="float-right" onClick={props.togglePreviewing}>&times;</a>
       </div>
       <MarkdownBlock md={props.text} />
@@ -271,9 +277,9 @@ class CompositionUnit extends React.Component {
   renderAudienceBtn(props) {
     return (props) => {
       const opts = [
-        { label: <span><i className="fa fa-lock"/> Private</span>, 
+        { label: <span><i className="fa fa-lock"/> {t('Private')}</span>,
           value: false },
-        { label: <span><i className="fa fa-bullhorn"/> Public</span>, 
+        { label: <span><i className="fa fa-bullhorn"/> {t('Public')}</span>,
           value: true }
       ]
       var curOpt = !!props.isPublic ? 1 : 0
@@ -295,13 +301,13 @@ class CompositionUnit extends React.Component {
         if (props.isReply) {
           return <span/>
         } else {
-          return <a className="btn disabled"><i className="fa fa-paperclip" /> Attachments not available in PMs</a>
+          return <a className="btn disabled"><i className="fa fa-paperclip" /> {t('composer.AttachmentsNotAvailable')}</a>
         }
       }
       if (props.isAdding) {
-        return <a className="btn disabled"><i className="fa fa-paperclip" /> Adding...</a>
+        return <a className="btn disabled"><i className="fa fa-paperclip" /> {t('composer.Adding')}</a>
       } else {
-        return <a className="btn" onClick={props.onAttach}><i className="fa fa-paperclip" /> Add an attachment</a>
+        return <a className="btn" onClick={props.onAttach}><i className="fa fa-paperclip" /> {t('composer.AddAttachment')}</a>
       }
     }
   }
@@ -310,10 +316,10 @@ class CompositionUnit extends React.Component {
     return (props) => {
       const sendIcon = (this.isPublic()) ? 'users' : 'lock'
       if (!props.canSend) {
-        return <a className="btn disabled">Send</a>
+        return <a className="btn disabled">{t('Send')}</a>
       } else {
         return <a className="btn highlighted" onClick={this.onSend.bind(this)}>
-          <i className={`fa fa-${sendIcon}`}/> Send
+          <i className={`fa fa-${sendIcon}`}/> {t('Send')}
         </a>
       }
     }
@@ -349,7 +355,7 @@ class CompositionUnit extends React.Component {
                   ? <ComposerChannel channels={this.props.channels||[]} onChange={this.onChangeChannel.bind(this)} value={this.getChannel()} />
                   : <ComposerRecps recps={this.state.recps} suggestOptions={this.props.suggestOptions} onAdd={this.onAddRecp.bind(this)} onRemove={this.onRemoveRecp.bind(this)} /> 
                 }
-                { this.props.cancelBtn ? <a className="btn" onClick={this.props.onCancel}><i className="fa fa-times" /> Cancel</a> : '' }
+                { this.props.cancelBtn ? <a className="btn" onClick={this.props.onCancel}><i className="fa fa-times" /> {t('Cancel')}</a> : '' }
               </div>
           }
           <div className="composer-content">
@@ -360,8 +366,8 @@ class CompositionUnit extends React.Component {
                 onSubmit={this.onSend.bind(this)}
                 suggestOptions={this.props.suggestOptions}
                 placeholder={this.isReply() ?
-                             'Write a reply' :
-                             (this.props.placeholder||'Write your message here')} />
+                             t('composer.WriteReply') :
+                             (this.props.placeholder||t('composer.WriteMessage'))} />
           </div>
           <div className="composer-ctrls flex">
             <AttachBtn isPublic={this.isPublic()} 
@@ -370,7 +376,7 @@ class CompositionUnit extends React.Component {
                        isAdding={this.state.isAddingFiles} 
                        onAttach={this.onAttach.bind(this)} />
             <div className="flex-fill" />
-            { this.state.isPreviewing ? '' : <a className="btn" onClick={togglePreviewing}>Preview</a> }
+            { this.state.isPreviewing ? '' : <a className="btn" onClick={togglePreviewing}>{t('composer.Preview')}</a> }
             <SendBtn canSend={this.canSend() && !this.state.isSending} />
           </div>
           { this.state.isPreviewing ? <CompositionUnit.Preview text={this.state.text} togglePreviewing={togglePreviewing} /> : '' }
@@ -424,9 +430,10 @@ export default class Composer extends CompositionUnit {
       if (err) {
         this.setState({ isSending: false })
         if (err.conflict) {
-          this.context.events.emit('error', new Error('Error While Publishing: You follow multiple people with the name "'+err.name+'." Resolve this before publishing.'))
+          this.context.events.emit('error',
+            new Error(t('error.nameDupPublish', { name: err.name })))
         } else {
-          this.context.events.emit('error', explain(err, 'Error While Publishing'))
+          this.context.events.emit('error', explain(err, t('error.publish')))
         }
         return
       }
@@ -470,7 +477,7 @@ export default class Composer extends CompositionUnit {
       let published = (err, msg) => {
         this.setState({ isSending: false })
         if (err) { 
-          this.context.events.emit(explain(err, 'Error While Publishing'))
+          this.context.events.emit(explain(err, t('PublishError')))
         } else {
           // reset form
           this.setState({ text: '', isPreviewing: false })
@@ -478,11 +485,11 @@ export default class Composer extends CompositionUnit {
 
           // give user feedback
           if (this.isReply())
-            this.context.events.emit('notice', 'Your reply has been published')
+            this.context.events.emit('notice', t('composer.PublishedReply'))
           else if (this.isPublic())
-            this.context.events.emit('notice', 'Your post has been published')
+            this.context.events.emit('notice', t('composer.PublishedPost'))
           else
-            this.context.events.emit('notice', 'Your private message has been sent')
+            this.context.events.emit('notice', t('composer.PublishedPrivate'))
 
           // mark read (include the thread root because the api will
           // automatically mark the root unread on new reply)

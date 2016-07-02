@@ -28,6 +28,7 @@
     "patchkit-util": "^1.0.1",
     "patchkit-vertical-filled": "^1.0.0",
     "patchwork-threads": "^2.2.0",
+    "patchwork-translations": "^1.0.0",
     "react": "^0.14.8",
     "ssb-msg-schemas": "^6.2.1",
     "ssb-msgs": "^5.2.0",
