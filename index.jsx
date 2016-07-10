@@ -15,6 +15,7 @@ import ComposerChannel from './channel'
 import { RECP_LIMIT, ComposerRecps } from './recps'
 import mentionslib from './mentions'
 import t from 'patchwork-translations'
+import ssbref from 'ssb-ref'
 
 const TEXTAREA_VERTICAL_FILL_ADJUST = -5 // remove 5 px to account for padding
 const MarkdownBlockVerticalFilled = verticalFilled(MarkdownBlock)
@@ -504,8 +505,19 @@ export default class Composer extends CompositionUnit {
         }
       }
       if (recps){ ssb.private.publish(post, recps, published) } 
-      else { ssb.publish(post, published) }
-      })
+      else {
+        var done = multicb({ pluck: 1, spread: true })
+        ssb.publish(post, done())
+        if (ssb.blobs.push) {
+          mentions.forEach(mention => {
+            if (ssbref.isBlobId(mention.link)) {
+              ssb.blobs.push(mention.link, done())
+            }
+          })
+        }
+        done(published)
+      }
+    })
   }
 
   render() {
