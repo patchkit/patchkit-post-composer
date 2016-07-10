@@ -52,10 +52,10 @@ export default class ComposerChannel extends React.Component {
 
   render() {
     if (this.props.isReadOnly) {
-      return <div><i className="fa fa-hashtag" /> Channel: {this.props.value||<span style={{color:'#aaa'}}>none</span>}</div>
+      return <div><i className="fa fa-hashtag" /> {t('channel')}: {this.props.value||<span style={{color:'#aaa'}}>none</span>}</div>
     }
     return <div className="flex flex-fill recps-inputs">
-      <span><i className="fa fa-hashtag" /> Channel:</span> <input className="flex-fill" ref="input" type="text" placeholder={t('composer.ChannelPlaceholder')} value={this.props.value} onChange={this.onChange.bind(this)} />
+      <span><i className="fa fa-hashtag" /> {t('channel')}:</span> <input className="flex-fill" ref="input" type="text" placeholder={t('composer.ChannelPlaceholder')} value={this.props.value} onChange={this.onChange.bind(this)} />
     </div>
   }
 }
