@@ -73,7 +73,7 @@ export class ComposerRecps extends React.Component {
     const isAtLimit = (this.props.recps.length >= RECP_LIMIT)
     const warnings = this.props.recps.filter((id) => (id !== this.context.user.id) && !social.follows(this.context.users, id, this.context.user.id))
     return <div className="recps-inputs flex-fill">
-      <i className="fa fa-user" /> To: {this.props.recps.map((r) => <ComposerRecp key={r} id={r} onRemove={this.props.onRemove} isReadOnly={this.props.isReadOnly} />)}
+      <i className="fa fa-user" /> {t('thread.ToRecps')} {this.props.recps.map((r) => <ComposerRecp key={r} id={r} onRemove={this.props.onRemove} isReadOnly={this.props.isReadOnly} />)}
       { (!isAtLimit && !this.props.isReadOnly) ?
         <input ref="input" type="text" placeholder={t('composer.AddRecipients')} value={this.state.inputText} onChange={this.onChange.bind(this)} {...this.props} /> :
         '' }
